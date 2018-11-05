@@ -1,0 +1,3 @@
+max_iter: 100
+n_components: 3
+n_sample: 1000

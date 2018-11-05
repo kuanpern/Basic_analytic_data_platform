@@ -1,0 +1,8 @@
+    subject = 'Bring weather equipment'
+    text = 'Hi {username}, please bring {equipments} for the day'.format(
+        username   = subscriber['username'],
+        equipments = content
+    )
+    logger.info('send email to user: "%s" | subject "%s" | content "%s"' % (subscriber, subject, ' '.join(text.split()),))
+
+    sendmail(sender, subscriber, subject, text)

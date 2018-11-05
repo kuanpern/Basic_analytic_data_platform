@@ -1,0 +1,8 @@
+2018-11-04 10:22:25,238 - __main__ - INFO - sending alerts to 1 subscriptions
+2018-11-04 10:23:07,523 - __main__ - INFO - sending alerts to 1 subscriptions
+2018-11-04 10:24:51,518 - __main__ - INFO - sending alerts to 1 subscriptions
+2018-11-04 10:25:08,570 - __main__ - INFO - sending alerts to 1 subscriptions
+2018-11-04 10:25:37,213 - __main__ - INFO - sending alerts to 1 subscriptions
+2018-11-04 10:25:37,218 - __main__ - INFO - send email to user: "{'ID': 'fef398a8-61e4-4ac2-84f3-7b129587835e-001', 'name': 'KP_TAN', 'email': 'kptan86@gmail.com', 'updated_dt': Timestamp('2018-01-01 00:00:00')}"
+2018-11-04 10:27:40,253 - __main__ - INFO - sending alerts to 1 subscriptions
+2018-11-04 10:27:40,257 - __main__ - INFO - send email to user: "{'ID': 'fef398a8-61e4-4ac2-84f3-7b129587835e-001', 'name': 'KP_TAN', 'email': 'kptan86@gmail.com', 'updated_dt': Timestamp('2018-01-01 00:00:00')}"

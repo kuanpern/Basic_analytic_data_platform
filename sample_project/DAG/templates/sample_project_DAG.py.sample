@@ -1,0 +1,322 @@
+from airflow import DAG
+from airflow.operators.bash_operator import BashOperator
+from datetime import datetime, timedelta
+from string import Template
+import yaml
+
+# read configurations
+home_dir  = {{ home_dir }}
+key_file  = {{ key_file }}
+conf_file = {{ conf_file }}
+working_dir = home_dir
+
+############## DECLARE DAG AND PARAMETERS ##############
+DAG_name = '{{ DAG_name }}'
+dag = DAG(
+  DAG_name, 
+  schedule_interval = '0 0 * * *',
+  default_args={
+  'owner': 'airflow',
+  'depends_on_past': False,
+  'start_date': datetime(2018, 1, 1),
+  'email': ['admin@i-scube.com'],
+  'email_on_failure': False,
+  'email_on_retry'  : False,
+  'retries': 1,
+  'retry_delay': timedelta(minutes=15),
+  # 'end_date': datetime(2020, 1, 1),
+})
+#--------------------------------------------------------
+
+########### COMMAND TEMPLATES ###########
+jupyter_nbconvert_templated_cmd = Template("""
+cd {{ params.working_dir }}
+export project_home="$home_dir"
+export key_file="$conf_file"
+export key_file="$key_file"
+export this_file="params.notebook_filename"
+export PYTHONPATH=$$PYTHONPATH:$home_dir/lib
+jupyter nbconvert "{{ params.notebook_filename }}" --to notebook --execute --ExecutePreprocessor.timeout=0 
+""").substitute({'home_dir': home_dir, 'key_file': key_file, 'conf_file': conf_file})
+#----------------------------------------
+
+#================== ETL ================== #
+ETL_task01 = BashOperator(task_id='transaction_records_pulling',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/ETL', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+
+ETL_task02 = BashOperator(task_id='user_data_pulling',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/ETL', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+
+ETL_task03 = BashOperator(task_id='transaction_records_internalization',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/ETL', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+ETL_task03.set_upstream(ETL_task01)
+
+ETL_task04 = BashOperator(task_id='transaction_records_cleaning',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/ETL', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+ETL_task04.set_upstream(ETL_task03)
+
+ETL_task05 = BashOperator(task_id='user_data_internalization',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/ETL', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+ETL_task05.set_upstream(ETL_task02)
+
+ETL_task06 = BashOperator(task_id='user_data_cleaning',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/ETL', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+ETL_task06.set_upstream(ETL_task05)
+
+ETL_task07 = BashOperator(task_id='make_joining_keys',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/ETL', 
+    'notebook_filename': "joining_keys.ipynb"
+  }
+) # end BashOperator
+ETL_task07.set_upstream(ETL_task04)
+ETL_task07.set_upstream(ETL_task06)
+
+ETL_task08 = BashOperator(task_id='compute_user_visibility',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/ETL', 
+    'notebook_filename': "compute_visibility.ipynb"
+  }
+) # end BashOperator
+ETL_task08.set_upstream(ETL_task06)
+ETL_task08.set_upstream(ETL_task07)
+
+ETL_task09 = BashOperator(task_id='user_journey_sessionization',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/ETL', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+ETL_task09.set_upstream(ETL_task07)
+ETL_task09.set_upstream(ETL_task06)
+ETL_task09.set_upstream(ETL_task04)
+
+ETL_task10 = BashOperator(task_id='filter_evaporated_records',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/ETL', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+ETL_task10.set_upstream(ETL_task09)
+
+ETL_task11 = BashOperator(task_id='event_quantization',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/ETL', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+ETL_task11.set_upstream(ETL_task10)
+
+
+#================== STATISTICAL/BI STUDY ================== #
+BI_task01 = BashOperator(task_id='basic_stats_transaction',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/BI', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+BI_task01.set_upstream(ETL_task09)
+
+BI_task02 = BashOperator(task_id='basic_stats_user',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/BI', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+BI_task02.set_upstream(ETL_task06)
+
+BI_task03 = BashOperator(task_id='cost_pareto_user',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/BI', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+BI_task03.set_upstream(ETL_task09)
+
+BI_task04 = BashOperator(task_id='cost_pareto_occurrence',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/BI', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+BI_task04.set_upstream(ETL_task09)
+
+BI_task05 = BashOperator(task_id='cost_pareto_provider',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/BI', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+BI_task05.set_upstream(ETL_task09)
+
+BI_task06 = BashOperator(task_id='cost_trending_user',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/BI', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+BI_task06.set_upstream(ETL_task09)
+
+BI_task07 = BashOperator(task_id='cost_trending_occurrence',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/BI', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+BI_task07.set_upstream(ETL_task09)
+
+BI_task08 = BashOperator(task_id='cost_trending_provider',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/BI', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+BI_task08.set_upstream(ETL_task09)
+
+BI_task09 = BashOperator(task_id='provider_interaction_heatmap',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/BI', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+BI_task09.set_upstream(ETL_task09)
+
+BI_task10 = BashOperator(task_id='internal_occurrence_rate',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/BI', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+BI_task10.set_upstream(ETL_task09)
+BI_task10.set_upstream(ETL_task08)
+
+BI_task11 = BashOperator(task_id='population_occurrence_rate',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/BI', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+
+BI_task12 = BashOperator(task_id='coccurrence_and_interaction',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/BI', 
+    'notebook_filename': "placeholder.ipynb"
+  }
+) # end BashOperator
+BI_task12.set_upstream(ETL_task09)
+BI_task12.set_upstream(BI_task10)
+
+
+########### MACHINE LEARNING ###########
+ML_task01 = BashOperator(task_id='data_selection',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/data_selection', 
+    'notebook_filename': "data_preparation_01.ipynb"
+  }
+) # end BashOperator
+ML_task01.set_upstream(ETL_task09)
+
+ML_task02 = BashOperator(task_id='compute_derived_paramters',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/data_selection', 
+    'notebook_filename': "data_preparation_02.ipynb"
+  }
+) # end BashOperator
+ML_task02.set_upstream(ML_task01)
+
+ML_task03 = BashOperator(task_id='handle_missing_and_datetime_values',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/data_selection', 
+    'notebook_filename': "data_preparation_03.ipynb"
+  }
+) # end BashOperator
+ML_task03.set_upstream(ML_task02)
+
+ML_task04 = BashOperator(task_id='compute_feature_importance',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/feature_selection/', 
+    'notebook_filename': "feature selection 01.ipynb"
+  }
+) # end BashOperator
+ML_task04.set_upstream(ML_task03)
+
+ML_task05 = BashOperator(task_id='compute_case_importance',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/feature_selection/', 
+    'notebook_filename': "feature selection 02.ipynb"
+  }
+) # end BashOperator
+ML_task05.set_upstream(ML_task04)
+
+ML_task06 = BashOperator(task_id='conventional_baseline_prediction',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/baseline/', 
+    'notebook_filename': "baseline prediction.ipynb"
+  }
+) # end BashOperator
+ML_task06.set_upstream(ML_task04)
+ML_task06.set_upstream(ML_task05)
+
+ML_task07 = BashOperator(task_id='NeuralNet_trainingtesting',
+  bash_command=jupyter_nbconvert_templated_cmd, dag=dag,
+  params={
+    'working_dir'      : working_dir + '/training_testing/', 
+    'notebook_filename': "ANN.ipynb"
+  }
+) # end BashOperator
+ML_task07.set_upstream(ML_task05)
+ML_task07.set_upstream(ML_task06)
+

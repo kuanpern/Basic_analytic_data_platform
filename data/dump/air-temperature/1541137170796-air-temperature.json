@@ -1,0 +1,135 @@
+{
+  "metadata": {
+    "stations": [
+      {
+        "device_id": "S109",
+        "location": {
+          "latitude": 1.3764,
+          "longitude": 103.8492
+        },
+        "name": "Ang Mo Kio Avenue 5",
+        "id": "S109"
+      },
+      {
+        "device_id": "S117",
+        "location": {
+          "latitude": 1.256,
+          "longitude": 103.679
+        },
+        "name": "Banyan Road",
+        "id": "S117"
+      },
+      {
+        "device_id": "S107",
+        "location": {
+          "latitude": 1.3135,
+          "longitude": 103.9625
+        },
+        "name": "East Coast Parkway",
+        "id": "S107"
+      },
+      {
+        "device_id": "S44",
+        "location": {
+          "latitude": 1.34583,
+          "longitude": 103.68166
+        },
+        "name": "Nanyang Avenue",
+        "id": "S44"
+      },
+      {
+        "device_id": "S121",
+        "location": {
+          "latitude": 1.37288,
+          "longitude": 103.72244
+        },
+        "name": "Old Choa Chu Kang Road",
+        "id": "S121"
+      },
+      {
+        "device_id": "S111",
+        "location": {
+          "latitude": 1.31055,
+          "longitude": 103.8365
+        },
+        "name": "Scotts Road",
+        "id": "S111"
+      },
+      {
+        "device_id": "S122",
+        "location": {
+          "latitude": 1.41731,
+          "longitude": 103.8249
+        },
+        "name": "Sembawang Road",
+        "id": "S122"
+      },
+      {
+        "device_id": "S116",
+        "location": {
+          "latitude": 1.281,
+          "longitude": 103.754
+        },
+        "name": "West Coast Highway",
+        "id": "S116"
+      },
+      {
+        "device_id": "S100",
+        "location": {
+          "latitude": 1.4172,
+          "longitude": 103.74855
+        },
+        "name": "Woodlands Road",
+        "id": "S100"
+      }
+    ],
+    "reading_unit": "deg C",
+    "reading_type": "DBT 1M F"
+  },
+  "items": [
+    {
+      "timestamp": "2018-11-02T13:35:00+08:00",
+      "readings": [
+        {
+          "value": 29.5,
+          "station_id": "S109"
+        },
+        {
+          "value": 31,
+          "station_id": "S117"
+        },
+        {
+          "value": 29.7,
+          "station_id": "S107"
+        },
+        {
+          "value": 29.1,
+          "station_id": "S44"
+        },
+        {
+          "value": 29.7,
+          "station_id": "S121"
+        },
+        {
+          "value": 31.8,
+          "station_id": "S111"
+        },
+        {
+          "value": 30.5,
+          "station_id": "S122"
+        },
+        {
+          "value": 30.5,
+          "station_id": "S116"
+        },
+        {
+          "value": 30,
+          "station_id": "S100"
+        }
+      ]
+    }
+  ],
+  "api_info": {
+    "status": "healthy"
+  }
+}
